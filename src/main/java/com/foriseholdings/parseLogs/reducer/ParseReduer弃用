@@ -1,0 +1,56 @@
+package com.foriseholdings.parseLogs.reducer;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.hadoop.io.Text;
+
+import com.foriseholdings.commons.common.BaseReducer;
+
+public class ParseReduer extends BaseReducer {
+	
+	protected boolean myreduce() {
+		
+		String userID = key.toString();
+		Map<String, Double> map = new HashMap<String, Double>();
+
+		for (Text value : values) {
+			//输出 商品ID和行为ID
+			String productID = value.toString().split("_")[0];
+			String score = value.toString().split("_")[1];
+			
+			if (map.get(productID) == null) {
+				map.put(productID, Double.valueOf(score));
+			} else {
+				Double preScore = Double.valueOf(map.get(productID));
+//				map.put(productID, preScore);
+				map.put(productID, preScore + Double.valueOf(score));
+			}
+
+		}
+		StringBuilder sBuilder = new StringBuilder();
+		for (Entry<String, Double> entry : map.entrySet()) {
+			//userID ：12092_OR200104  商品ID
+			String productID = entry.getKey();
+			//score ：用户ID是空  是用户ID
+			Double score  =entry.getValue();
+			sBuilder.append(productID + "_" + score + ",");
+
+		}
+		String line = null;
+		if (sBuilder.toString().endsWith(",")) {
+			line = sBuilder.substring(0, sBuilder.length() - 1);
+		}
+		
+		
+		//用户，商品，评分
+		outKey.set(userID);
+		outValue.set(line);
+//		context.write(outKey, outValue);
+		write();
+		return true;
+
+	}
+
+}

@@ -1,0 +1,20 @@
+package com.foriseholdings.algorithm.slopeone.mapper;
+
+import com.foriseholdings.common.common.BaseMapper;
+
+public class SlopeOneMapper extends BaseMapper {
+
+	protected boolean calcProc() {
+		// 1009
+		// B00019@20835_12,B00019@20934_1,B00019@20824_3,B00019@SP1520923978571\20834_24,B00019@CX201803060950499198\20015_12,B00019@20929_6,B00019@MJ1521105655591\20835_3,B00019@CX201803150849066722\20011_8,B00019@MJ1521105655559\20833_3,B00019@MJ1521112072257\20018_3,B00019@20011_3,B00019@20022_1,B00019@SP1520920620440\20704_1,B00019@20930_85,B00019@20015_4
+
+		String userId = value.toString().split("\t")[0];
+		String innerContext = value.toString().split("\t")[1];
+		// System.out.println("score-->"+score);
+		outKey.set(userId);
+		outValue.set(innerContext);
+		write();
+		return true;
+	}
+
+}

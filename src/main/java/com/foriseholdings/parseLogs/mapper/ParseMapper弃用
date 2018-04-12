@@ -1,0 +1,173 @@
+package com.foriseholdings.parseLogs.mapper;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import com.foriseholdings.commons.common.BaseMapper;
+import com.foriseholdings.parseLogs.ParsingJson;
+
+public class ParseMapper extends BaseMapper {
+	ArrayList<String> typeCode = new ArrayList<String>();
+
+	String url = null;
+	String user = null;
+	String productID = null;
+
+	protected boolean calcProc() {
+
+		{
+			String[] values = value.toString().split("===>");
+
+			if (values.length != 2) {
+				return false;
+			}
+
+			if (!values[0].contains("请求数据")) {
+				return false;
+			}
+
+			Map<String, Map<String, String>> urlmap = new HashMap<>();
+			Map<String, String> userPro = new HashMap<String, String>();
+
+			// 这个地方每次循环都要重新clear 和add 效率低
+			typeCode.clear();
+			typeCode.add("OR200001");
+			typeCode.add("OR200104");
+			typeCode.add("PPM00001");
+			typeCode.add("PR900001");
+
+			/**
+			 * OR200104 提交订单 OR200001 加入购物车 PPM00001 添加收藏 PR900001 查看
+			 * http://117.78.40.253:8981/org/index.do zhangzhengwang zhzhw7822038
+			 * 
+			 */
+
+			// 获取到实际操作对象
+			String nodeEnd = values[1];
+
+			urlmap = ParsingJson.valueRe(nodeEnd.trim());
+
+			if (urlmap == null) {
+
+				return false;
+			}
+
+			Iterator iterator = urlmap.entrySet().iterator();
+			String score = null;
+			while (iterator.hasNext()) {
+
+				Map.Entry<String, Map<String, String>> enter = (Entry<String, Map<String, String>>) iterator.next();
+				// OR200001 {6025=MJ1512107582191_11970}
+				// System.out.println("分割线--------------》");
+				// System.out.println(enter.getKey() + "\t" + enter.getValue());
+				url = enter.getKey();
+
+				if (!typeCode.contains(url)) {
+					return false;
+				}
+				// 这里用质素
+				switch (url) {
+				case "OR200104":
+					score = "7";
+					break;
+				case "OR200001":
+					score = "5";
+					break;
+				case "PPM00001":
+					score = "3";
+					break;
+				case "PR900001":
+					score = "2";
+					break;
+				default:
+					score = "0";
+					break;
+				}
+
+				userPro = (Map<String, String>) enter.getValue();
+
+				Iterator iterUserAndPro = userPro.entrySet().iterator();
+				while (iterUserAndPro.hasNext()) {
+					Map.Entry<String, String> enter2 = (Entry<String, String>) iterUserAndPro.next();
+					user = enter2.getKey();
+
+					if (user == null) {
+						return false;
+					}
+
+					if (user.length() == 0) {
+						user = "用户ID空";
+					}
+
+					if (user.equals("null")) {
+						user = "用户ID空";
+					}
+
+					// 商品ID 格式
+					// 20001
+					// SP111111_101
+					// XS111111_101
+					// TG111111_101
+					// TJ111111_101
+					// TC111111_101
+					// CX111111_101
+					// ZCX111111_101&101
+
+					productID = enter2.getValue();
+					// System.out.println("=====================");
+					// System.out.println("---->"+productID+"<----");
+					// System.out.println("=====================");
+					// 正式环境下 会不会出现这种情况
+					// 顺序不能变 。变的话会报错
+					if (productID == null) {
+						return false;
+					}
+					if (productID.equals("null")) {
+						return false;
+					}
+
+					if (productID.length() == 0) {
+						return false;
+					}
+
+					if (productID.contains("undefined")) {
+						return false;
+					}
+
+					if (productID.contains(",")) {
+						String[] singleIDs = productID.split(",");
+						String prodIds = null;
+						for (String prodId : singleIDs) {
+							prodIds = prodId.replace("_", "\\");
+							if (prodId.endsWith("|")) {
+								prodId = prodId.substring(0, prodId.length() - 1);
+							}
+							outKey.set(user);
+							outValue.set(prodIds + "_" + score);
+							// context.write(outKey, outValue);
+							write();
+						}
+					} else {
+						outKey.set(user);
+						if (productID.contains("_")) {
+							productID = productID.replace("_", "\\");
+							if (productID.endsWith("|")) {
+								productID = productID.substring(0, productID.length() - 1);
+							}
+						}
+						outValue.set(productID + "_" + score);
+						// context.write(outKey, outValue);
+						write();
+					}
+
+				}
+				urlmap.clear();
+				userPro.clear();
+			}
+		}
+		return true;
+	}
+}

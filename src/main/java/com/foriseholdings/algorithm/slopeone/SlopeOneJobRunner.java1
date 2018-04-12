@@ -1,0 +1,48 @@
+package com.foriseholdings.algorithm.slopeone;
+
+import com.foriseholdings.algorithm.slopeone.mapper.SlopeOneMapper;
+import com.foriseholdings.algorithm.slopeone.reducer.SlopeOneReducer;
+import com.foriseholdings.common.common.BaseMapper;
+import com.foriseholdings.common.common.BaseReducer;
+import com.foriseholdings.common.common.BaseRunner;
+import com.foriseholdings.common.tools.ReturnFileFormat;
+import com.foriseholdings.common.util.PropertyUtil;
+
+/*
+ * 算法思想：
+ * 给用户推荐那些和他们之前喜欢的物品相似的物品
+ */
+public class SlopeOneJobRunner extends BaseRunner {
+
+	String parse_outPath = PropertyUtil.getProperty("parse_outPath");
+	String base_path = PropertyUtil.getProperty("base_path");
+
+	protected BaseMapper stepMapper;
+	protected BaseReducer stepReducer;
+	int state = -1;
+
+	public static void main(String[] args) {
+		SlopeOneJobRunner it = new SlopeOneJobRunner();
+		it.baseStart("BC1001");
+	}
+
+	@Override
+	public boolean baseStart(String buss_code) {
+		step2(buss_code);
+		return false;
+	}
+
+	public boolean step2(String buss_code) {
+		String parsePath = "/parseLog/BC1001/test/";
+		String outPath = "/BC1001/slopeOne/20180408";
+		String input = ReturnFileFormat.getPathAddr(base_path, parsePath, buss_code);
+		String output = ReturnFileFormat.getPathAddr(base_path, outPath, buss_code);
+		
+		stepMapper = new SlopeOneMapper();
+		stepReducer = new SlopeOneReducer();
+		runMain.runTask(stepMapper, stepReducer, "", "", input, output, buss_code, "slopeOne");
+
+		return true;
+	}
+
+}

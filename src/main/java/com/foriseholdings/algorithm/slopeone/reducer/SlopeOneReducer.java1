@@ -1,0 +1,58 @@
+package com.foriseholdings.algorithm.slopeone.reducer;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.hadoop.io.Text;
+
+import com.foriseholdings.algorithm.slopeone.SlopeOne;
+import com.foriseholdings.common.common.BaseReducer;
+
+public class SlopeOneReducer extends BaseReducer {
+
+	Map<String, Map<String, Integer>> userRatings = new HashMap<String, Map<String, Integer>>();
+	Map<String, Integer> itemScore = new HashMap<String, Integer>();
+	int i = 0;
+
+	@Override
+	protected boolean myreduce() {
+
+		StringBuffer sb = new StringBuffer();
+		System.out.println(context.toString());
+
+		System.out.println(values.toString());
+
+		for (Text text : values) {
+			// text :行号_值
+			sb.append(text);
+		}
+		// B00019@20835_12,B00019@20934_1,B00019@20824_3,B00019@SP1520923978571\20834_24,B00019@CX201803060950499198\20015_12,B00019@20929_6,B00019@MJ1521105655591\20835_3,B00019@CX201803150849066722\20011_8,B00019@MJ1521105655559\20833_3,B00019@MJ1521112072257\20018_3,B00019@20011_3,B00019@20022_1,B00019@SP1520920620440\20704_1,B00019@20930_85,B00019@20015_4
+		String innerContext = sb.toString();
+		String userID = key.toString();
+		// oneRecord 代表 门店编码@商品ID_评分
+		for (String oneRecord : innerContext.split(",")) {
+			itemScore.put(oneRecord.split("_")[0], Integer.parseInt(oneRecord.split("_")[1]));
+		}
+		userRatings.put(userID, itemScore);
+
+		// 所有记录汇总以后初始化
+		// SlopeOne slopeOne = new SlopeOne(userRatings);
+		// slopeOne.computeDeviation();
+		// List<Map.Entry<String, Double>> top_k =
+		// slopeOne.predictRating(userRatings.get(userID), 5);
+		// for (Map.Entry<String, Double> item : top_k) {
+		// System.out.println(item.getKey() + " " + item.getValue());
+		// outKey.set(item.getKey());
+		// outValue.set(item.getValue().toString());
+		// write();
+		// }
+
+		return true;
+	}
+
+	void test() {
+		System.out.println("输入" + i++);
+	}
+
+}

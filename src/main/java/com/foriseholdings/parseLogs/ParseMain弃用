@@ -1,0 +1,60 @@
+package com.foriseholdings.parseLogs;
+
+import com.foriseholdings.commons.common.BaseRunner;
+import com.foriseholdings.commons.tools.ReturnFileFormat;
+import com.foriseholdings.commons.utils.PropertyUtil;
+import com.foriseholdings.parseLogs.mapper.ParseMapper;
+import com.foriseholdings.parseLogs.reducer.ParseReduer;
+
+public class ParseMain extends BaseRunner {
+
+	/**
+	 * 不能直接从日志中获取数据 这样不能获取用户 userId 商品_分数，商品_分数 而是 userId 商品_分数 会导致推荐结果出问题
+	 * 出现null_0情况
+	 * 弃用，无门店编码版本
+	 */
+
+	private static String parse_inPath = PropertyUtil.getProperty("parse_inPath");
+	// 输出文件的相对路径
+	private static String parse_outPath = PropertyUtil.getProperty("parse_outPath");
+
+	private static String base_path = PropertyUtil.getProperty("base_path");
+	
+	
+	
+	
+	// private static String parse_inPath = "/applogs/20171210/";
+	// // 输出文件的相对路径
+	// private static String parse_outPath = "/D5/20171206/step1_output";
+	//
+
+	public static void main(String[] args) {
+		ParseMain pm = new ParseMain();
+		pm.baseStart("BC1006");
+	}
+
+	public boolean baseStart(String buss_code) {
+		if (step1()) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean step1() {
+
+		 String input = ReturnFileFormat.getPathAddr(base_path, parse_inPath);
+		String output = ReturnFileFormat.getPathAddr(base_path, parse_outPath);
+		// String input = "/applogs/20171210";
+//		String input = "/foriseholdings/Algorithm/applogs/cafeLog/";
+		stepMapper = new ParseMapper();
+		stepReducer = new ParseReduer();
+		state = runMain.runTask(stepMapper, stepReducer, "", "step1", input, output,"","parse");
+
+		if (state == 1) {
+			System.out.println("parse执行成功");
+			return true;
+		}
+		return false;
+	}
+
+}

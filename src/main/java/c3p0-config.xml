@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<c3p0-config>
+	<default-config>
+
+		<property name="driverClass">com.mysql.jdbc.Driver</property>
+		<property name="jdbcUrl">jdbc:mysql://192.168.152.5:3506/guns?useUnicode=true&amp;characterEncoding=UTF-8
+		</property>
+		<property name="user">root</property>
+		<property name="password">Fuhua_1234</property>
+		<property name="initialPoolSize">10</property>
+		<property name="maxIdleTime">30</property>
+		<property name="maxPoolSize">100</property>
+		<property name="minPoolSize">10</property>
+	</default-config>
+
+	<named-config name="BC1006">
+		<property name="driverClass">com.mysql.jdbc.Driver</property>
+		<property name="jdbcUrl">jdbc:mysql://117.78.39.152:8306/db_product_info?useUnicode=true&amp;characterEncoding=UTF-8
+		</property>
+		<property name="user">root</property>
+		<property name="password">Brunocaffe@2017.com</property>
+		<property name="initialPoolSize">10</property>
+		<property name="maxIdleTime">30</property>
+		<property name="maxPoolSize">100</property>
+		<property name="minPoolSize">10</property>
+	</named-config>
+
+
+	<named-config name="BC1001">
+		<property name="driverClass">com.mysql.jdbc.Driver</property>
+		<property name="jdbcUrl">jdbc:mysql://49.4.5.233:8306/db_product_info?useUnicode=true&amp;characterEncoding=UTF-8
+		</property>
+		<property name="user">root</property>
+		<property name="password">D5Kitchen@2017.com</property>
+		<property name="initialPoolSize">10</property>
+		<property name="maxIdleTime">30</property>
+		<property name="maxPoolSize">100</property>
+		<property name="minPoolSize">10</property>
+	</named-config>
+
+
+
+
+
+
+</c3p0-config>
